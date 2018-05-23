@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+    steering:
+        image: actiontest:actiontestv0
+        network_mode: "host"
+        restart: always
+        command: "motion --cid=111 --verbose=1 --id=1"
