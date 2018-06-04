@@ -72,10 +72,10 @@ int32_t main(int32_t argc, char **argv) {
           std::chrono::system_clock::time_point tp;
           tp = std::chrono::system_clock::now();
           cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
-          opendlv::logic::action::AimPoint message;
-          message.azimuthAngle(0.0f);
+          opendlv::proxy::GroundDecelerationRequest message;
+          message.groundDeceleration(-15.5f);
           od4.send(message,sampleTime,1);
-          std::cout << "Sent conta" << message.ID() << std::endl;
+          std::cout << "Sent container" << std::endl;
        }
     }
     return retCode;
