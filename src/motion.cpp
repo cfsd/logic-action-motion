@@ -35,7 +35,7 @@ int32_t main(int32_t argc, char **argv) {
     if ((0 == commandlineArguments.count("cid")) || (0 == commandlineArguments.count("verbose"))) {
         std::cerr << argv[0] << " not enought input arguments." << std::endl;
         std::cerr << "Usage:   " << argv[0] << " --cid=<OpenDaVINCI session> [--id=<Identifier in case of multiple beaglebone units>] [--verbose]" << std::endl;
-        std::cerr << "Example: " << argv[0] << " --cid=111 --id=1 --verbose=1 --freq=30" << std::endl;
+        std::cerr << "Example: " << argv[0] << " --cid=111 --id=1 --verbose=1" << std::endl;
         retCode = 1;
     } else {
         const uint32_t ID{(commandlineArguments["id"].size() != 0) ? static_cast<uint32_t>(std::stoi(commandlineArguments["id"])) : 0};
@@ -54,7 +54,6 @@ int32_t main(int32_t argc, char **argv) {
             // if (!motion.getInitialised()){
             //     return;
             // }
-            std::cout << "Recieved container, sending to motion" << std::endl;
             motion.nextContainer(envelope);
         }};
 
@@ -69,14 +68,7 @@ int32_t main(int32_t argc, char **argv) {
         using namespace std::literals::chrono_literals;
         while (od4.isRunning()) {
           std::this_thread::sleep_for(1s);
-          std::chrono::system_clock::time_point tp;
-          tp = std::chrono::system_clock::now();
-          cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
-          opendlv::proxy::GroundDecelerationRequest message;
-          message.groundDeceleration(-15.5f);
-          od4.send(message,sampleTime,1);
-          std::cout << "Sent container" << std::endl;
-       }
+        }
     }
     return retCode;
 }
