@@ -2,7 +2,6 @@
 
 This repository provides source code for beaglebones for the OpenDLV.io software ecosystem.
 
-[![Build Status](https://travis-ci.org/cfsd/logic-action-motion.svg?branch=master)](https://travis-ci.org/cfsd/logic-action-motion)
 
 
 ## Table of Contents
