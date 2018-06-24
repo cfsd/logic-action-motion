@@ -74,7 +74,7 @@ int32_t main(int32_t argc, char **argv) {
           std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
           cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
 
-          od4.send(heartBeat,sampleTime,13);
+          od4.send(heartBeat,sampleTime,313);
         }
     }
     return retCode;
