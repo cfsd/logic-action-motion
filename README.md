@@ -2,8 +2,7 @@
 
 This repository provides source code for beaglebones for the OpenDLV.io software ecosystem.
 
-[![Build Status](https://travis-ci.org/chalmers-revere/opendlv.io.svg?branch=master)](https://travis-ci.org/se-research/opendlv.sensors.oxts) [![License: GPLv3](https://img.shields.io/badge/license-GPL--3-blue.svg
-)](https://www.gnu.org/licenses/gpl-3.0.txt)
+[![Build Status](https://travis-ci.org/cfsd/logic-action-motion.svg?branch=pre-release)](https://travis-ci.org/cfsd/logic-action-motion)
 
 
 ## Table of Contents
