@@ -44,7 +44,6 @@ Motion::~Motion()
 
 void Motion::nextContainer(cluon::data::Envelope &a_container)
 {
-  std::cout << "I recieved a container!" << std::endl;
   (void) a_container;
   if (a_container.dataType() == opendlv::proxy::GroundAccelerationRequest::ID()) {
     auto accelerationRequest = cluon::extractMessage<opendlv::proxy::GroundAccelerationRequest>(std::move(a_container));
@@ -92,7 +91,6 @@ void Motion::calcTorque(float a_arg)
   float mass = 217.4f;
   float wheelRadius = 0.22f;
   float torque = a_arg*mass*wheelRadius;
-  torque = 1.0f;
 
   float Iz = 133.32f;
 
