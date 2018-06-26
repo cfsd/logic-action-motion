@@ -91,7 +91,7 @@ void Motion::calcTorque(float a_arg)
   float mass = 217.4f;
   float wheelRadius = 0.22f;
   float torque = a_arg*mass*wheelRadius;
-
+  torque = 3.0f;
   float Iz = 133.32f;
 
   float yawRateRef = calcYawRateRef(m_aimPoint);
