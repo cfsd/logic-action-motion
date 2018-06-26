@@ -84,8 +84,8 @@ void Motion::tearDown()
 
 void Motion::calcTorque(float a_arg)
 {
-  uint32_t leftMotorID = 101;
-  uint32_t rightMotorID = 102;
+  uint32_t leftMotorID = 1502;
+  uint32_t rightMotorID = 1503;
   float dT = 0.5;
 
 
