@@ -92,6 +92,7 @@ void Motion::calcTorque(float a_arg)
   float mass = 217.4f;
   float wheelRadius = 0.22f;
   float torque = a_arg*mass*wheelRadius;
+  torque = 1.0f;
 
   float Iz = 133.32f;
 
