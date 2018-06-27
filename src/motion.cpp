@@ -35,14 +35,16 @@ int32_t main(int32_t argc, char **argv) {
     if ((0 == commandlineArguments.count("cid")) || (0 == commandlineArguments.count("verbose"))) {
         std::cout << argv[0] << " not enought input arguments." << std::endl;
         std::cout << "Usage:   " << argv[0] << " --cid=<OpenDaVINCI session> [--id=<Identifier in case of multiple beaglebone units>] [--verbose]" << std::endl;
-        std::cout << "Default: " << argv[0] << " --cid=111 --cidSM=219 --constantTorque=0 --id=1 --verbose=1" << std::endl;
+        std::cout << "Default: " << argv[0] << " --cid=111 --cidSM=219 --constantSpeed=0 --id=1 --verbose=1 --speedRequest=2" << std::endl;
     }
 
       const uint32_t ID{(commandlineArguments["id"].size() != 0) ? static_cast<uint32_t>(std::stoi(commandlineArguments["id"])) : 1};
       const bool VERBOSE{(commandlineArguments["verbose"].size() != 0) ? commandlineArguments.count("verbose") != 0 : 1};
       const uint16_t cid{(commandlineArguments["cid"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cid"])) : (uint16_t) 111};
-      const uint16_t cidSM{(commandlineArguments["cidSM"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cidSteering"])) : (uint16_t) 219};
-      const bool constTorque{commandlineArguments.count("constantTorque") != 0};
+      const uint16_t cidSM{(commandlineArguments["cidSM"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cidSM"])) : (uint16_t) 219};
+      const bool constSpeed{(commandlineArguments["constantSpeed"].size() != 0) ? commandlineArguments.count("constantSpeed") : 0};
+      const float speedRequest{(commandlineArguments["speedRequest"].size() != 0) ? commandlineArguments.count("speedRequest") : 2.0f};
+
       //const float FREQ{std::stof(commandlineArguments["freq"])};
       std::cout << "Micro-Service ID:" << ID << std::endl;
 
@@ -51,22 +53,24 @@ int32_t main(int32_t argc, char **argv) {
       cluon::OD4Session od4{cid};
       cluon::OD4Session od4StateMachine{cidSM};
 
-      if(constTorque==0){
-        Motion motion(VERBOSE, ID, od4StateMachine);
+      Motion motion(VERBOSE, ID, od4StateMachine);
 
-       auto catchContainer{[&motion](cluon::data::Envelope &&envelope)
-        {
-          // if (!motion.getInitialised()){
-          //     return;
-          // }
-          motion.nextContainer(envelope);
-        }};
+     auto catchContainer{[&motion](cluon::data::Envelope &&envelope)
+      {
+        // if (!motion.getInitialised()){
+        //     return;
+        // }
+        motion.nextContainer(envelope);
+      }};
 
+      if(constSpeed==0){
         od4.dataTrigger(opendlv::proxy::GroundAccelerationRequest::ID(), catchContainer);
         od4.dataTrigger(opendlv::proxy::GroundDecelerationRequest::ID(), catchContainer);
-        od4.dataTrigger(opendlv::sim::KinematicState::ID(), catchContainer);
-        od4.dataTrigger(opendlv::logic::action::AimPoint::ID(), catchContainer);
       }
+      od4.dataTrigger(opendlv::sim::KinematicState::ID(), catchContainer);
+      od4.dataTrigger(opendlv::logic::action::AimPoint::ID(), catchContainer);
+      od4.dataTrigger(opendlv::proxy::GroundSpeedReading::ID(), catchContainer);
+
 
       // Just sleep as this microservice is data driven.
       using namespace std::literals::chrono_literals;
@@ -80,14 +84,8 @@ int32_t main(int32_t argc, char **argv) {
 
         od4.send(heartBeat,sampleTime,313);
 
-        if(constTorque==1){
-          opendlv::proxy::TorqueRequest tr1;
-          opendlv::proxy::TorqueRequest tr2;
-          tr1.torque(600.0f);
-          tr2.torque(600.0f);
-
-          od4StateMachine.send(tr1,sampleTime,1502);
-          od4StateMachine.send(tr1,sampleTime,1503);
+        if(constSpeed==1){
+          motion.setSpeedRequest(speedRequest);
         }
       }
 

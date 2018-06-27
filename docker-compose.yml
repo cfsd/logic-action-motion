@@ -1,8 +1,17 @@
 version: '2'
 
 services:
-    steering:
-        image: actiontest:actiontestv0
+    motion:
+        image: motion:test
         network_mode: "host"
-        restart: always
-        command: "motion --cid=111 --verbose=1 --id=1"
+        command: "motion --cid=111 --cidSM=250 --constantSpeed=1 --verbose=1 --id=1"
+
+    steering:
+        image: steering:test
+        network_mode: "host"
+        command: "steering --cid=111 --cidSteering=250"
+
+    cfsd18-sim-visualization:
+        image: chalmersfsd/cfsd18-sim-visualization:pre-release-778bfb6
+        network_mode: "host"
+        command: "--cid=250"

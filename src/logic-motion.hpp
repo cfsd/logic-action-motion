@@ -28,7 +28,8 @@ class Motion {
   Motion(bool verbose, uint32_t id, cluon::OD4Session &od4);
   ~Motion();
   void nextContainer(cluon::data::Envelope &);
-
+  void setSpeedRequest(float);
+  
  private:
   void setUp();
   void tearDown();
@@ -39,6 +40,6 @@ class Motion {
  private:
    cluon::OD4Session &m_od4;
    opendlv::logic::action::AimPoint m_aimPoint;
-   float m_speed;
+   float m_groundSpeedReading;
 };
 #endif

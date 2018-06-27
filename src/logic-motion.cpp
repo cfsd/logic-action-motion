@@ -28,7 +28,7 @@
 Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   : m_od4(od4)
   , m_aimPoint()
-  , m_speed()
+  , m_groundSpeedReading(1.3f)
 {
   setUp();
   (void)verbose;
@@ -56,14 +56,14 @@ void Motion::nextContainer(cluon::data::Envelope &a_container)
     auto decelerationRequest = cluon::extractMessage<opendlv::proxy::GroundDecelerationRequest>(std::move(a_container));
     float deceleration = decelerationRequest.groundDeceleration();
 
-    if (m_speed > float(5/3.6)){
+    if (m_groundSpeedReading > float(5/3.6)){
       calcTorque(deceleration);
     }
   }
 
-  if (a_container.dataType() == opendlv::sim::KinematicState::ID()) { // change this to whatever container marcus sends out
-    auto vehicleSpeed = cluon::extractMessage<opendlv::sim::KinematicState>(std::move(a_container));
-    m_speed = vehicleSpeed.vx();
+  if (a_container.dataType() == opendlv::proxy::GroundSpeedReading::ID()) { // change this to whatever container marcus sends out
+    auto vehicleSpeed = cluon::extractMessage<opendlv::proxy::GroundSpeedReading>(std::move(a_container));
+    m_groundSpeedReading = vehicleSpeed.groundSpeed();
   }
 
   if (a_container.dataType() == opendlv::logic::action::AimPoint::ID()) {
@@ -86,11 +86,13 @@ void Motion::calcTorque(float a_arg)
   uint32_t leftMotorID = 1502;
   uint32_t rightMotorID = 1503;
   float dT = 0.5;
+  float gearRatio = 16.0f;
 
 
   float mass = 217.4f;
   float wheelRadius = 0.22f;
-  float torque = a_arg*mass*wheelRadius;
+  float torque = a_arg*mass*wheelRadius/gearRatio*100.0f; // In [cNm]
+  torque = (m_groundSpeedReading < 0.2f) ? 200 : torque;
   float Iz = 133.32f;
 
   float yawRateRef = calcYawRateRef(m_aimPoint);
@@ -111,7 +113,7 @@ float Motion::calcYawRateRef(opendlv::logic::action::AimPoint aimPoint)
 {
   float headingReq = aimPoint.azimuthAngle();  // Angle to the aim point
   float dist  = aimPoint.distance();           // Distance to the aim point
-  float u = m_speed;
+  float u = m_groundSpeedReading;
   float R = dist/(float)(sqrt(2.0f*(1.0f-(float)cos(2.0f*headingReq))));
   // Calculate the average yaw rate to turn for that specific curve
   float r = std::copysign(u/R,headingReq);
@@ -129,4 +131,10 @@ void Motion::sendActuationContainer(int32_t a_arg, float torque)
   cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
 
   m_od4.send(torqueRequest,sampleTime,senderStamp);
+}
+
+void Motion::setSpeedRequest(float speedRequest){
+  float acceleration;
+  acceleration = (speedRequest - m_groundSpeedReading);
+  calcTorque(acceleration);
 }
