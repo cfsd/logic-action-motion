@@ -13,7 +13,8 @@
 *
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-
+1301,
 * USA.
 */
 
@@ -28,7 +29,7 @@
 Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   : m_od4(od4)
   , m_aimPoint()
-  , m_groundSpeedReading(1.3f)
+  , m_groundSpeedReading(0.0f)
 {
   setUp();
   (void)verbose;
@@ -91,7 +92,7 @@ void Motion::calcTorque(float a_arg)
 
   float mass = 217.4f;
   float wheelRadius = 0.22f;
-  float torque = a_arg*mass*wheelRadius/gearRatio*100.0f; // In [cNm]
+  float torque = a_arg*mass*wheelRadius/gearRatio*100.0f*2; // In [cNm]
   torque = (m_groundSpeedReading < 0.2f) ? 200 : torque;
   float Iz = 133.32f;
 
