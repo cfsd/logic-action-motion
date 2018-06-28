@@ -29,7 +29,7 @@
 Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   : m_od4(od4)
   , m_aimPoint()
-  , m_groundSpeedReading(0.0f)
+  , m_groundSpeedReading(0.3f)
 {
   setUp();
   (void)verbose;
@@ -92,8 +92,11 @@ void Motion::calcTorque(float a_arg)
 
   float mass = 217.4f;
   float wheelRadius = 0.22f;
-  float torque = a_arg*mass*wheelRadius/gearRatio*100.0f*2; // In [cNm]
-  torque = (m_groundSpeedReading < 0.2f) ? 200 : torque;
+  float torque = a_arg*mass*wheelRadius/gearRatio*100.0f; // In [cNm]
+  torque = (m_groundSpeedReading < 0.5f) ? 200 : torque;
+  if(m_groundSpeedReading<5/3.6 && torque<0){
+    torque=0;
+  }
   float Iz = 133.32f;
 
   float yawRateRef = calcYawRateRef(m_aimPoint);
@@ -105,6 +108,7 @@ void Motion::calcTorque(float a_arg)
   // Torque distribution
   float torqueLeft = torque*0.5f - dTorque;
   float torqueRight = torque-torqueLeft;
+
 
   sendActuationContainer(leftMotorID,torqueLeft);
   sendActuationContainer(rightMotorID,torqueRight);

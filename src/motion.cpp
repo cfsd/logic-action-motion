@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char **argv) {
       const uint16_t cid{(commandlineArguments["cid"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cid"])) : (uint16_t) 111};
       const uint16_t cidSM{(commandlineArguments["cidSM"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cidSM"])) : (uint16_t) 219};
       const bool constSpeed{(commandlineArguments["constantSpeed"].size() != 0) ? commandlineArguments.count("constantSpeed") : 0};
-      const float speedRequest{(commandlineArguments["speedRequest"].size() != 0) ? commandlineArguments.count("speedRequest") : 2.0f};
+      const float speedRequest{(commandlineArguments["speedRequest"].size() != 0) ? std::stof(commandlineArguments["speedRequest"]) : 2.0f};
 
       //const float FREQ{std::stof(commandlineArguments["freq"])};
       std::cout << "Micro-Service ID:" << ID << std::endl;
