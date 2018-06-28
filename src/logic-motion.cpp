@@ -29,7 +29,9 @@
 Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   : m_od4(od4)
   , m_aimPoint()
-  , m_groundSpeedReading(0.3f)
+  , m_groundSpeedReading(0.0f)
+  , m_groundSpeedReadingLeft(0.0f)
+  , m_groundSpeedReadingRight(0.0f)
 {
   setUp();
   (void)verbose;
@@ -64,7 +66,12 @@ void Motion::nextContainer(cluon::data::Envelope &a_container)
 
   if (a_container.dataType() == opendlv::proxy::GroundSpeedReading::ID()) { // change this to whatever container marcus sends out
     auto vehicleSpeed = cluon::extractMessage<opendlv::proxy::GroundSpeedReading>(std::move(a_container));
-    m_groundSpeedReading = vehicleSpeed.groundSpeed();
+    if(a_container.senderStamp()==1504){
+      m_groundSpeedReadingLeft = vehicleSpeed.groundSpeed();
+    } else if (a_container.senderStamp()==1505){
+      m_groundSpeedReadingRight = vehicleSpeed.groundSpeed();
+    }
+    m_groundSpeedReading = (m_groundSpeedReadingLeft + m_groundSpeedReadingRight)*0.5f;
   }
 
   if (a_container.dataType() == opendlv::logic::action::AimPoint::ID()) {

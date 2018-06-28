@@ -29,7 +29,7 @@ class Motion {
   ~Motion();
   void nextContainer(cluon::data::Envelope &);
   void setSpeedRequest(float);
-  
+
  private:
   void setUp();
   void tearDown();
@@ -41,5 +41,7 @@ class Motion {
    cluon::OD4Session &m_od4;
    opendlv::logic::action::AimPoint m_aimPoint;
    float m_groundSpeedReading;
+   float m_groundSpeedReadingLeft;
+   float m_groundSpeedReadingRight;
 };
 #endif

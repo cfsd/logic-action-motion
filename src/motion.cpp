@@ -69,7 +69,7 @@ int32_t main(int32_t argc, char **argv) {
       }
       od4.dataTrigger(opendlv::sim::KinematicState::ID(), catchContainer);
       od4.dataTrigger(opendlv::logic::action::AimPoint::ID(), catchContainer);
-      od4.dataTrigger(opendlv::proxy::GroundSpeedReading::ID(), catchContainer);
+      od4StateMachine.dataTrigger(opendlv::proxy::GroundSpeedReading::ID(), catchContainer);
 
 
       // Just sleep as this microservice is data driven.
