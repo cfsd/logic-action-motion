@@ -57,9 +57,6 @@ int32_t main(int32_t argc, char **argv) {
 
      auto catchContainer{[&motion](cluon::data::Envelope &&envelope)
       {
-        // if (!motion.getInitialised()){
-        //     return;
-        // }
         motion.nextContainer(envelope);
       }};
 

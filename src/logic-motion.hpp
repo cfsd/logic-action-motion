@@ -43,7 +43,6 @@ class Motion {
    float m_groundSpeedReading;
    float m_groundSpeedReadingLeft;
    float m_groundSpeedReadingRight;
-   std::mutex m_od4Mutex;
    std::mutex m_speedMutex;
    std::mutex m_aimPointMutex;
 };
