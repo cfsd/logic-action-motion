@@ -32,7 +32,6 @@ Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   , m_groundSpeedReading(0.0f)
   , m_groundSpeedReadingLeft(0.0f)
   , m_groundSpeedReadingRight(0.0f)
-  , m_od4Mutex()
   , m_speedMutex()
   , m_aimPointMutex()
 {
