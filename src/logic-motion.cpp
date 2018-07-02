@@ -32,6 +32,9 @@ Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   , m_groundSpeedReading(0.0f)
   , m_groundSpeedReadingLeft(0.0f)
   , m_groundSpeedReadingRight(0.0f)
+  , m_od4Mutex()
+  , m_speedMutex()
+  , m_aimPointMutex()
 {
   setUp();
   (void)verbose;
@@ -66,6 +69,7 @@ void Motion::nextContainer(cluon::data::Envelope &a_container)
 
   if (a_container.dataType() == opendlv::proxy::GroundSpeedReading::ID()) { // change this to whatever container marcus sends out
     auto vehicleSpeed = cluon::extractMessage<opendlv::proxy::GroundSpeedReading>(std::move(a_container));
+    std::lock_guard<std::mutex> lockSpeed(m_speedMutex);
     if(a_container.senderStamp()==1504){
       m_groundSpeedReadingLeft = vehicleSpeed.groundSpeed();
     } else if (a_container.senderStamp()==1505){
@@ -75,6 +79,7 @@ void Motion::nextContainer(cluon::data::Envelope &a_container)
   }
 
   if (a_container.dataType() == opendlv::logic::action::AimPoint::ID()) {
+    std::lock_guard<std::mutex> lockAimPoint(m_aimPointMutex);
     m_aimPoint = cluon::extractMessage<opendlv::logic::action::AimPoint>(std::move(a_container));
   }
 }
@@ -106,7 +111,11 @@ void Motion::calcTorque(float a_arg)
   }
   float Iz = 133.32f;
 
-  float yawRateRef = calcYawRateRef(m_aimPoint);
+  float yawRateRef;
+  {
+  std::lock_guard<std::mutex> lockAimPoint(m_aimPointMutex);
+  yawRateRef = calcYawRateRef(m_aimPoint);
+  }
 
   float e_yawRate = -yawRateRef; // Add yaw rate here when Marcus is done with message
   (void) (e_yawRate*dT);
@@ -142,6 +151,7 @@ void Motion::sendActuationContainer(int32_t a_arg, float torque)
   std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
   cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
 
+  std::lock_guard<std::mutex> lockOd4(m_od4Mutex);
   m_od4.send(torqueRequest,sampleTime,senderStamp);
 }
 
