@@ -43,8 +43,6 @@ int32_t main(int32_t argc, char **argv) {
       const bool VERBOSE{(commandlineArguments["verbose"].size() != 0) ? commandlineArguments.count("verbose") != 0 : 1};
       const uint16_t cid{(commandlineArguments["cid"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cid"])) : (uint16_t) 111};
       const uint16_t cidSM{(commandlineArguments["cidSM"].size() != 0) ? static_cast<uint16_t>(std::stoi(commandlineArguments["cidSM"])) : (uint16_t) 219};
-      const bool constSpeed{(commandlineArguments["constantSpeed"].size() != 0) ? commandlineArguments.count("constantSpeed") : 0};
-      const float speedRequest{(commandlineArguments["speedRequest"].size() != 0) ? std::stof(commandlineArguments["speedRequest"]) : 2.0f};
 
       //const float FREQ{std::stof(commandlineArguments["freq"])};
       std::cout << "Micro-Service ID:" << ID << std::endl;
@@ -89,10 +87,8 @@ int32_t main(int32_t argc, char **argv) {
         }
       }};
 
-      if(constSpeed==0){
-        od4.dataTrigger(opendlv::proxy::GroundAccelerationRequest::ID(), catchContainer);
-        od4.dataTrigger(opendlv::proxy::GroundDecelerationRequest::ID(), catchContainer);
-      }
+      od4.dataTrigger(opendlv::proxy::GroundAccelerationRequest::ID(), catchContainer);
+      od4.dataTrigger(opendlv::proxy::GroundDecelerationRequest::ID(), catchContainer);
       od4.dataTrigger(opendlv::sim::KinematicState::ID(), catchContainer);
       od4.dataTrigger(opendlv::logic::action::AimPoint::ID(), catchContainer);
       od4StateMachine.dataTrigger(opendlv::proxy::GroundSpeedReading::ID(), catchContainer);
@@ -108,10 +104,6 @@ int32_t main(int32_t argc, char **argv) {
         cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
 
         od4.send(heartBeat,sampleTime,313);
-
-        if(constSpeed==1){
-          motion.setSpeedRequest(speedRequest);
-        }
       }
 
   return retCode;

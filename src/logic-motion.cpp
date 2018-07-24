@@ -107,7 +107,7 @@ void Motion::calcTorque(float a_arg)
   float mass = 217.4f;
   float wheelRadius = 0.22f;
   float torque = a_arg*mass*wheelRadius/gearRatio*100.0f; // In [cNm]
-  torque = (m_groundSpeedReading < 0.5f) ? 200 : torque;
+  //torque = (m_groundSpeedReading < 0.5f) ? 200 : torque;
   if(m_groundSpeedReading<5/3.6 && torque<0){
     torque=0;
   }
