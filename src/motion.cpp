@@ -31,6 +31,7 @@
 
 int32_t main(int32_t argc, char **argv) {
     int32_t retCode{0};
+    bool readyState = 0;
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
     if ((0 == commandlineArguments.count("cid")) || (0 == commandlineArguments.count("verbose"))) {
         std::cout << argv[0] << " not enought input arguments." << std::endl;
@@ -55,12 +56,37 @@ int32_t main(int32_t argc, char **argv) {
 
       Motion motion(VERBOSE, ID, od4StateMachine);
 
-     auto catchContainer{[&motion](cluon::data::Envelope &&envelope)
+      using namespace std::literals::chrono_literals;
+
+      auto catchState{[&readyState, &od4StateMachine, &motion](cluon::data::Envelope &&envelope)
       {
-        // if (!motion.getInitialised()){
-        //     return;
-        // }
-        motion.nextContainer(envelope);
+        auto ASstate = cluon::extractMessage<opendlv::proxy::SwitchStateReading>(std::move(envelope));
+
+        if (envelope.senderStamp() == 1401 && readyState == 0 && (ASstate.state() == 2) ){
+          motion.nextContainer(envelope);
+
+          for (int i=0; i < 10; i++) {
+            std::this_thread::sleep_for(0.1s);
+
+            opendlv::proxy::TorqueRequest torqueRequest;
+            cluon::data::TimeStamp sampleTime = cluon::time::now();
+
+            torqueRequest.torque(i*10);
+            od4StateMachine.send(torqueRequest,sampleTime,1502);
+            od4StateMachine.send(torqueRequest,sampleTime,1503);
+          }
+
+        readyState = (ASstate.state() == 2 ? 1 : 0);
+        }
+      }};
+
+      od4.dataTrigger(opendlv::proxy::SwitchStateReading::ID(), catchState);
+
+      auto catchContainer{[&motion, &readyState](cluon::data::Envelope &&envelope)
+      {
+        if(readyState){
+          motion.nextContainer(envelope);
+        }
       }};
 
       if(constSpeed==0){
@@ -73,7 +99,6 @@ int32_t main(int32_t argc, char **argv) {
 
 
       // Just sleep as this microservice is data driven.
-      using namespace std::literals::chrono_literals;
       while (od4.isRunning()) {
         std::this_thread::sleep_for(0.05s);
         opendlv::system::SignalStatusMessage heartBeat;

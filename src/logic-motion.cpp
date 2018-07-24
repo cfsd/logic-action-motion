@@ -32,6 +32,7 @@ Motion::Motion(bool verbose, uint32_t id, cluon::OD4Session &od4)
   , m_groundSpeedReading(0.0f)
   , m_groundSpeedReadingLeft(0.0f)
   , m_groundSpeedReadingRight(0.0f)
+  , m_readyState(0)
 {
   setUp();
   (void)verbose;
@@ -47,7 +48,13 @@ Motion::~Motion()
 
 void Motion::nextContainer(cluon::data::Envelope &a_container)
 {
-  (void) a_container;
+  if (a_container.dataType() == opendlv::proxy::SwitchStateReading::ID()) {
+    auto ASstate = cluon::extractMessage<opendlv::proxy::SwitchStateReading>(std::move(a_container));
+    m_readyState = ASstate.state();
+    sendActuationContainer(0,1502);
+    sendActuationContainer(0,1503);
+  }
+
   if (a_container.dataType() == opendlv::proxy::GroundAccelerationRequest::ID()) {
     auto accelerationRequest = cluon::extractMessage<opendlv::proxy::GroundAccelerationRequest>(std::move(a_container));
     float acceleration = accelerationRequest.groundAcceleration();
@@ -137,11 +144,15 @@ void Motion::sendActuationContainer(int32_t a_arg, float torque)
 {
   auto senderStamp = a_arg;
   opendlv::proxy::TorqueRequest torqueRequest;
-  torqueRequest.torque(torque);
 
   std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
   cluon::data::TimeStamp sampleTime = cluon::time::convert(tp);
 
+  if (m_readyState != 2) {
+    torqueRequest.torque(0.0f);
+  } else {
+    torqueRequest.torque(torque);
+  }
   m_od4.send(torqueRequest,sampleTime,senderStamp);
 }
 

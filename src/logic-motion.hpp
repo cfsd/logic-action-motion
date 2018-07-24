@@ -43,5 +43,6 @@ class Motion {
    float m_groundSpeedReading;
    float m_groundSpeedReadingLeft;
    float m_groundSpeedReadingRight;
+   int32_t m_readyState;
 };
 #endif
