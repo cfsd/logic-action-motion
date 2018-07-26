@@ -64,10 +64,12 @@ void Motion::nextContainer(cluon::data::Envelope &a_container)
 
   if (a_container.dataType() == opendlv::proxy::GroundDecelerationRequest::ID()) {
     auto decelerationRequest = cluon::extractMessage<opendlv::proxy::GroundDecelerationRequest>(std::move(a_container));
-    float deceleration = decelerationRequest.groundDeceleration();
+    float deceleration = -decelerationRequest.groundDeceleration();
 
     if (m_groundSpeedReading > float(5/3.6)){
       calcTorque(deceleration);
+    } else {
+      calcTorque(0.0f);
     }
   }
 
