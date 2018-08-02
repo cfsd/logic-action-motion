@@ -63,7 +63,7 @@ int32_t main(int32_t argc, char **argv) {
         if (envelope.senderStamp() == 1401 && readyState == 0 && (ASstate.state() == 2) ){
           motion.nextContainer(envelope);
           std::this_thread::sleep_for(5.0s);
-          for (int i=0; i < 10; i++) {
+          for (int i=0; i < 20; i++) {
             std::this_thread::sleep_for(0.1s);
 
             opendlv::proxy::TorqueRequest torqueRequest;
