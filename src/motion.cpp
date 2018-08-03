@@ -69,7 +69,7 @@ int32_t main(int32_t argc, char **argv) {
             opendlv::proxy::TorqueRequest torqueRequest;
             cluon::data::TimeStamp sampleTime = cluon::time::now();
 
-            torqueRequest.torque(i*10);
+            torqueRequest.torque(i*37.5);
             od4StateMachine.send(torqueRequest,sampleTime,1502);
             od4StateMachine.send(torqueRequest,sampleTime,1503);
           }
